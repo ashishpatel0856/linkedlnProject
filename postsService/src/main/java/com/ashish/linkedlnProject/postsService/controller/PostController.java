@@ -6,8 +6,10 @@ import com.ashish.linkedlnProject.postsService.dto.PostDto;
 import com.ashish.linkedlnProject.postsService.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.html.HTMLTableCaptionElement;
 
 import java.util.List;
@@ -23,10 +25,10 @@ public class PostController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto,
-                                                                   HttpServletRequest  httpServletRequest){
-        PostDto postDto = postService.createPost(postCreateRequestDto,1L);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostDto> createPost(@RequestPart("post") PostCreateRequestDto postCreateRequestDto,
+                                              @RequestPart("file") MultipartFile file){
+        PostDto postDto = postService.createPost(postCreateRequestDto,file);
         return new ResponseEntity<>(postDto, HttpStatus.CREATED);
     }
 
@@ -34,7 +36,6 @@ public class PostController {
     public ResponseEntity<PostDto> getPost(@PathVariable Long postId) {
         Long userId = AuthContextHolder.getCurrentUserId();
         PostDto postDto = postService.getPostById(postId);
-//        return new ResponseEntity<>(postDto, HttpStatus.OK);
         return ResponseEntity.ok(postDto);
     }
 

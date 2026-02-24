@@ -3,7 +3,7 @@ package com.ashish.linkedlnProject.notification_service.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.Id;f
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 

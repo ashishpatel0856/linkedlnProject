@@ -2,6 +2,7 @@ package com.ashish.linkedlnProject.postsService.service;
 
 import com.ashish.linkedlnProject.postsService.auth.AuthContextHolder;
 import com.ashish.linkedlnProject.postsService.client.ConnectionsServiceClient;
+import com.ashish.linkedlnProject.postsService.client.UploaderServiceClient;
 import com.ashish.linkedlnProject.postsService.dto.PersonDto;
 import com.ashish.linkedlnProject.postsService.dto.PostCreateRequestDto;
 import com.ashish.linkedlnProject.postsService.dto.PostDto;
@@ -11,36 +12,43 @@ import com.ashish.linkedlnProject.postsService.exception.ResourceNotFoundExcepti
 import com.ashish.linkedlnProject.postsService.repository.PostsRepository;
 
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class PostService {
 
-    private static final Logger log = LoggerFactory.getLogger(PostService.class);
+//    private static final Logger log = LoggerFactory.getLogger(PostService.class);
 
     private final PostsRepository postsRepository;
     private final ModelMapper modelMapper;
     private final ConnectionsServiceClient connectionsServiceClient;
     private final KafkaTemplate<Long, PostCreated> postCreatedKafkaTemplate;
+    private final UploaderServiceClient uploaderServiceClient;
 
-    public PostService(PostsRepository postsRepository, ModelMapper modelMapper, ConnectionsServiceClient connectionsServiceClient, KafkaTemplate<Long, PostCreated> postCreatedKafkaTemplate) {
-        this.postsRepository = postsRepository;
-        this.modelMapper = modelMapper;
-        this.connectionsServiceClient = connectionsServiceClient;
-        this.postCreatedKafkaTemplate = postCreatedKafkaTemplate;
-    }
 
-    public PostDto createPost(PostCreateRequestDto postCreateRequestDto, Long userId) {
+    public PostDto createPost(PostCreateRequestDto postCreateRequestDto, MultipartFile file) {
+        Long userId = AuthContextHolder.getCurrentUserId();
+
         log.info("creating post for user with id: {}", userId);
+
+        ResponseEntity<String> imageUrl = uploaderServiceClient.uploadFile(file);
+
         Post post = modelMapper.map(postCreateRequestDto, Post.class);
         post.setUserId(userId);
+        post.setImageUrl(imageUrl.getBody());
         post = postsRepository.save(post);
 
         List<PersonDto> personDtoList = connectionsServiceClient.getFirstDegreeConnections(userId);
