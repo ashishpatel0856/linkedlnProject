@@ -16,6 +16,7 @@ public class PostsConsumer {
 
     private final NotificationService notificationService;
 
+
     @KafkaListener(topics = "post_created_topic")
     public void handlePostCreated(PostCreated postCreated) {
         log.info("handlePostCreated:", postCreated);

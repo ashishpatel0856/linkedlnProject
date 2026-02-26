@@ -27,7 +27,8 @@ public class PostController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostDto> createPost(@RequestPart("post") PostCreateRequestDto postCreateRequestDto,
-                                              @RequestPart("file") MultipartFile file){
+                                              @RequestPart("file") MultipartFile file)
+    {
         PostDto postDto = postService.createPost(postCreateRequestDto,file);
         return new ResponseEntity<>(postDto, HttpStatus.CREATED);
     }
