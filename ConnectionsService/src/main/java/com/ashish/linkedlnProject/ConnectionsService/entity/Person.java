@@ -12,9 +12,11 @@ import java.util.UUID;
 @Builder
 public class Person {
 
-    @Id
-    private String id = UUID.randomUUID().toString();
-    private Long userId;
-    private String name;
+
+        @Id
+        private String id;
+
+        private Long userId;
+        private String name;
 
 }
